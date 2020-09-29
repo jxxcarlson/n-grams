@@ -1,1 +1,1 @@
-# nlp
+# nlp: analyze n-grams of text
