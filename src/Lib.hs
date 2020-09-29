@@ -58,10 +58,12 @@ insertWord word dict =
 
 -- > compileFrequencies ["one", "two", "one"]
 -- fromList [("one",2),("two",1)]
-compileFrequencies :: [String] -> DM.Map [Char] Int
+compileFrequencies :: [String] -> DM.Map String Int
 compileFrequencies words = 
     foldr insertWord DM.empty words
-    
+
+
+        
 sortedWords :: [String] -> [(String, Int)]
 sortedWords words = 
     words 
@@ -106,6 +108,15 @@ digramsOfText str =
       |> map normalize
       |> map digramsOfLine
       |> concat
+
+text :: String
+text = "a b c\na b f"
+
+-- > text |> digramsOfText |> compileDigramFrequencies
+--   fromList [(("^","a"),2),(("a","b"),2),(("b","c"),1),(("b","f"),1),(("c","$"),1),(("f","$"),1)]
+compileDigramFrequencies :: [(String, String)] -> DM.Map (String, String) Int
+compileDigramFrequencies digrams = 
+    foldr insertWord DM.empty digrams
 
 
 -- STUFF
