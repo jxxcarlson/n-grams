@@ -50,7 +50,7 @@ deletePunctuation  = deleteChars punctuation
 
 -- UNIGRAMS
 
-insertWord :: String -> DM.Map String Int -> DM.Map String Int
+insertWord :: Ord a => a -> DM.Map a Int -> DM.Map a Int
 insertWord word dict =
     case DM.lookup word dict of
         Just v -> DM.insert word (v + 1 )dict
@@ -87,8 +87,8 @@ type Line = String
 -- Assume the line is normalized
 -- > digrams "a b c"
 --   [("^","a"),("a","b"),("b","c"),("c","$")]
-digrams :: String -> [(String, String)]
-digrams str = 
+digramsOfLine :: String -> [(String, String)]
+digramsOfLine str = 
     let 
         ws = words str
         ws' = "^":ws
@@ -97,7 +97,15 @@ digrams str =
     zip ws' ws''
 
 
-
+-- > digramsOfText text
+--   [("^","a"),("a","b"),("b","c"),("c","$"),("^","d"),("d","e"),("e","f"),("f","$")
+digramsOfText :: String -> [(String, String)]
+digramsOfText str = 
+    str 
+      |> lines
+      |> map normalize
+      |> map digramsOfLine
+      |> concat
 
 
 -- STUFF
