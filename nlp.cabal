@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8b99ed3996368a7e4d8051cdbc33ef2cf032f69b135c4e4fb8893c02dd960ffd
+-- hash: 4d217ca65e17e4099eabc6003a7d12fe5d0e379f76b9f284ee298a66962dc922
 
 name:           nlp
 version:        0.1.0.0
@@ -27,7 +27,10 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Exec
+      Frequency
+      Normalize
+      Utility
   other-modules:
       Paths_nlp
   hs-source-dirs:
