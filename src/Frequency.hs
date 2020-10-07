@@ -6,6 +6,8 @@ import Utility ((|>))
 import Normalize (normalize)
 
 
+type Line = String
+
 linecount :: String -> Int
 linecount  = length . lines
 
@@ -13,14 +15,75 @@ wordcount :: String -> Int
 wordcount  = length . words
 
 
+-- FREQUENCIES
+
+insert :: Ord a => a -> DM.Map a Int -> DM.Map a Int
+insert key dict =
+    case DM.lookup key dict of
+        Just v -> DM.insert key (v + 1 )dict
+        Nothing -> DM.insert key 1 dict
 
 
--- > compileFrequencies ["one", "two", "one"]
--- fromList [("one",2),("two",1)]
-compile:: [String] -> DM.Map String Int
-compile words = 
-    foldr insertWord DM.empty words
+compile:: Ord a => [a] -> DM.Map a Int
+compile as = 
+    foldr insert DM.empty as
 
+
+relativeFrequencies :: [(a, Int)] ->[(a, Double)]
+relativeFrequencies frequencies = 
+    let
+        total = fromIntegral $ sum (map snd frequencies)
+    in
+        map (\(key, value) -> (key, (fromIntegral value) / total)) frequencies
+
+
+sorted :: Ord a => [a] -> [(a, Int)]
+sorted things =  
+    things 
+      |> compile
+      |> DM.toList
+      |> sortBy (\(k,v) (k',v') -> compare v v')
+      |> reverse
+
+
+slice :: Int -> Int ->  [a] -> [a]
+slice start howMany as =
+  take howMany $ drop start $ as
+
+ -- CHARACTERS
+
+sortedChars :: String -> [(Char, Int)]
+sortedChars str = 
+    str 
+      |> compile
+      |> DM.toList
+      |> sortBy (\(k,v) (k',v') -> compare v v')
+      |> reverse
+
+-- WORDS
+
+
+sortedWords :: String -> [(String, Int)]
+sortedWords str =
+    str
+      |> normalize
+      |> words
+      |> sorted
+
+
+
+words_ :: String -> [(String, Int)]
+words_ str =
+    str
+      |> normalize
+      |> words
+      |> sorted
+
+
+
+
+
+-- DIGRAMS
 
 
 -- > digramsOfText text
@@ -33,49 +96,12 @@ digramsOfText str =
       |> map digramsOfLine
       |> concat
 
-        
-sortedWords :: [String] -> [(String, Int)]
-sortedWords words = 
-    words 
-      |> compile
-      |> DM.toList
-      |> sortBy (\(k,v) (k',v') -> compare v v')
-      |> reverse
-
-
-getSortedWords :: String -> [(String, Int)]
-getSortedWords str =
-    str
-      |> normalize
-      |> words
-      |> sortedWords
-
-
-insertWord :: Ord a => a -> DM.Map a Int -> DM.Map a Int
-insertWord word dict =
-    case DM.lookup word dict of
-        Just v -> DM.insert word (v + 1 )dict
-        Nothing -> DM.insert word 1 dict
-
--- > compileFrequencies ["one", "two", "one"]
--- fromList [("one",2),("two",1)]
-relativeFrequencies :: [(String, Int)] ->[(String, Double)]
-relativeFrequencies frequencies = 
-    let
-        total = fromIntegral $ sum (map snd frequencies)
-    in
-        map (\(key, value) -> (key, (fromIntegral value) / total)) frequencies
-
-
--- > text |> digramsOfText |> compileDigramFrequencies
+    
+-- > text |> digramsOfText |> compileDigrams
 --   fromList [(("^","a"),2),(("a","b"),2),(("b","c"),1),(("b","f"),1),(("c","$"),1),(("f","$"),1)]
 compileDigrams :: [(String, String)] -> DM.Map (String, String) Int
 compileDigrams digrams = 
-    foldr insertWord DM.empty digrams
-
--- DIGRAMS
-
-type Line = String
+    foldr insert DM.empty digrams
 
 -- Assume the line is normalized
 -- > digrams "a b c"

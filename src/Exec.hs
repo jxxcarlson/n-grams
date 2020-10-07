@@ -1,8 +1,12 @@
 module Exec (exec) where
 
-import Frequency (wordcount, linecount, getSortedWords, relativeFrequencies )
+import Frequency (wordcount, linecount, sortedChars, 
+   sortedWords, slice, relativeFrequencies )
+import Normalize (normalize, normalize')
 import Utility ((|>))
 
+import Numeric 
+formatFloatN floatNum numOfDecimals = showFFloat (Just numOfDecimals) floatNum ""
 
 -- DISPATCHER
 
@@ -14,6 +18,7 @@ exec str =
        case cmd of
          "help" -> help
          "stats" -> stats args
+         "cfreq" -> charFreq args
          "freq" -> freq args
          "rfreq" -> relFreq args
          "lfreq" -> logRelFreq args
@@ -30,6 +35,7 @@ help =
     putStrLn "  Commands"
     putStrLn "  ------------------------------------------------------------"
     putStrLn "  stats FILENAME                      word, line, type count"
+    putStrLn "  cfreq FILENAME                      character frequencies"
     putStrLn "  freq  FILENAME START HOWMANYb       word frequencies"
     putStrLn "  rfreq  FILENAME START HOWMANY       relative frequencies"
     putStrLn "  lfreq  FILENAME START HOWMANY       log relative requencies"
@@ -45,10 +51,15 @@ stats args =
     contents <- readFile filePath
     putStrLn ""
     putStrLn $ "File: " ++ filePath 
+    putStrLn $ "Chars: " ++ show (length contents)
     putStrLn $ "Words: " ++ show (wordcount contents)
-    putStrLn $ "Types: " ++ (show $ length $ getSortedWords contents)
+    putStrLn $ "Types: " ++ (show $ length $ sortedWords contents)
     putStrLn $ "Lines: " ++ show (linecount contents)
     putStrLn ""
+
+
+charFreq :: [String] -> IO ()
+charFreq args = stats1 getRelativeCharFrequencies args    
 
 freq :: [String] -> IO ()
 freq args = stats2 getFrequencies args
@@ -60,7 +71,7 @@ logRelFreq :: [String] -> IO ()
 logRelFreq args = stats2 getLogRelativeFrequencies args
 
 
--- Diapatcher for freq, relFrea, logRelFreq ...
+-- Dispatcher for freq, relFrea, logRelFreq ...
 stats2 :: (String -> Int -> Int -> String) -> [String] -> IO ()
 stats2 f args = 
   let
@@ -77,38 +88,67 @@ stats2 f args =
     putStrLn $ f contents (read start) (read howMany)
     putStrLn ""
 
+stats1 :: (String -> String) -> [String] -> IO ()
+stats1 f args = 
+  let
+    filePath = args !! 0
+  in  
+  do  
+    contents <- readFile filePath
+    putStrLn ""
+    putStrLn $ "File: " ++ filePath 
+    putStrLn ""
+    putStrLn $ f contents
+    putStrLn ""
 
--- GET FREQUENCIES
+-- GET CHAR FREQUENCES 
+
+
+
+
+getRelativeCharFrequencies :: String -> String
+getRelativeCharFrequencies contents =
+   formatCharDoublePairs 5 $ relativeFrequencies $ sortedChars $ normalize' $ contents 
+
+sliceSortedChars :: Int -> Int ->  String -> [(Char, Int)]
+sliceSortedChars start howMany text =
+   slice start howMany $ sortedChars text
+
+formatCharDoublePairs :: Int -> [(Char, Double)] -> String
+formatCharDoublePairs padding pairs = 
+  foldr (\(s, k) acc -> (padRight padding (show s) ++ formatFloatN k 4 ++ "\n" ++ acc)) "" pairs
+
+-- GET WORD FREQUENCIES
 
 getFrequencies :: String -> Int -> Int -> String
 getFrequencies contents start howMany = 
-  formatIntPairs $ sliceSortedWords start howMany contents 
+  formatIntPairs 15 $ sliceSortedWords start howMany contents 
 
 getRelativeFrequencies :: String -> Int -> Int -> String
 getRelativeFrequencies contents start howMany = 
-  formatDoublePairs $ relativeFrequencies $ sliceSortedWords start howMany contents 
+  formatDoublePairs 15 $ relativeFrequencies $ sliceSortedWords start howMany contents 
 
 getLogRelativeFrequencies :: String -> Int -> Int -> String
 getLogRelativeFrequencies contents start howMany = 
-   formatDoublePairs $ map (\(a,b) -> (a, -log b)) $ relativeFrequencies $ sliceSortedWords start howMany contents 
+   formatDoublePairs 15 $ map (\(a,b) -> (a, -log b)) $ relativeFrequencies $ sliceSortedWords start howMany contents 
 
 
 -- SELECT SLICE OF DATA
 
 sliceSortedWords :: Int -> Int ->  String -> [(String, Int)]
 sliceSortedWords start howMany text =
-  take howMany $ drop start $ getSortedWords text
+  slice start howMany $ sortedWords text
 
 -- FORMATTING
 
-formatIntPairs :: [(String, Int)] -> String
-formatIntPairs pairs = 
-  foldr (\(s, k) acc -> (padRight 15 s ++ show k ++ "\n" ++ acc)) "" pairs
+formatIntPairs :: Int -> [(String, Int)] -> String
+formatIntPairs padding pairs = 
+  foldr (\(s, k) acc -> (padRight padding s ++ show k ++ "\n" ++ acc)) "" pairs
 
 
-formatDoublePairs :: [(String, Double)] -> String
-formatDoublePairs pairs = 
-  foldr (\(s, k) acc -> (padRight 15 s ++ show k ++ "\n" ++ acc)) "" pairs
+formatDoublePairs :: Int -> [(String, Double)] -> String
+formatDoublePairs padding pairs = 
+  foldr (\(s, k) acc -> (padRight padding s ++ formatFloatN k 4 ++ "\n" ++ acc)) "" pairs
 
 -- HELPERS
 
