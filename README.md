@@ -2,15 +2,18 @@
 
 ## Plan
 
-### Tool for writing out dictionary of word frequencies
+- Rewrite text analysis app with a REPL as driver (Done)
+- Add command to save relative frequencies of words to file
+- Rig up a Naive Bayes estimator
 
-```
-20 words from index 0: [("the",10167),("and",5347),("of",4368),("i",2823),("to",2221),("in",1915),("you",1539),("a",1305),("with",1288),("is",1123),("or",1073),("all",1025),("my",1000),("for",975),("me",958),("not",860),("that",854),("as",799),("it",751),("from",714)]
-```
 
+## References
+
+[Making a repl using Haskell](https://blogg.bekk.no/creating-a-repl-in-haskell-efcdef1deec2)
+
+### Regex stuff
 
 -- import Text.Regex.TDFA
 -- import Text.Regex.TDFA.Text ()
 
 -- https://williamyaoh.com/posts/2019-04-11-cheatsheet-to-regexes-in-haskell.html
-
