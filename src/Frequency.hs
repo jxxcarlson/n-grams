@@ -24,7 +24,7 @@ insert key dict =
         Nothing -> DM.insert key 1 dict
 
 
-compile:: Ord a => [a] -> DM.Map a Int
+compile :: Ord a => [a] -> DM.Map a Int
 compile as = 
     foldr insert DM.empty as
 

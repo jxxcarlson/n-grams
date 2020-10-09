@@ -1,7 +1,7 @@
 module Exec (exec) where
 
 import Frequency (wordcount, linecount, sortedChars, 
-   sortedWords, slice, relativeFrequencies )
+   sortedWords, slice, relativeFrequencies, digramsOfText, sorted)
 import Normalize (normalize, normalize')
 import Utility ((|>))
 
@@ -22,6 +22,7 @@ exec str =
          "freq" -> freq args
          "rfreq" -> relFreq args
          "lfreq" -> logRelFreq args
+         "dfreq" -> digramFreq args
          _ -> putStrLn "??"
 
 
@@ -39,6 +40,8 @@ help =
     putStrLn "  freq  FILENAME START HOWMANY        word frequencies"
     putStrLn "  rfreq  FILENAME START HOWMANY       relative frequencies"
     putStrLn "  lfreq  FILENAME START HOWMANY       log relative requencies"
+    putStrLn ""  
+    putStrLn "  Type :quit to quit"
     putStrLn ""
 
 
@@ -70,6 +73,8 @@ relFreq args = stats2 getRelativeFrequencies args
 logRelFreq :: [String] -> IO ()
 logRelFreq args = stats2 getLogRelativeFrequencies args
 
+digramFreq :: [String] -> IO ()
+digramFreq args = stats2 getDigramFrequencies args
 
 -- Dispatcher for freq, relFrea, logRelFreq ...
 stats2 :: (String -> Int -> Int -> String) -> [String] -> IO ()
@@ -132,6 +137,9 @@ getLogRelativeFrequencies :: String -> Int -> Int -> String
 getLogRelativeFrequencies contents start howMany = 
    formatDoublePairs 15 $ map (\(a,b) -> (a, -log b)) $ relativeFrequencies $ sliceSortedWords start howMany contents 
 
+getDigramFrequencies :: String -> Int -> Int -> String
+getDigramFrequencies contents start howMany =
+    formatDigramFrequencies 25 $ slice start howMany $ relativeFrequencies $ sorted $ digramsOfText contents
 
 -- SELECT SLICE OF DATA
 
@@ -150,6 +158,19 @@ formatDoublePairs :: Int -> [(String, Double)] -> String
 formatDoublePairs padding pairs = 
   foldr (\(s, k) acc -> (padRight padding s ++ formatFloatN k 4 ++ "\n" ++ acc)) "" pairs
 
+formatDigramFrequency :: Int -> ((String, String), Double) -> String
+formatDigramFrequency padding (digram, f) = 
+    padRight padding (showDigram digram) ++ formatFloatN f 4
+
+formatDigramFrequencies :: Int -> [((String, String), Double)] -> String
+formatDigramFrequencies padding pairOfPairs =
+    foldr (\p acc -> formatDigramFrequency padding p ++ "\n" ++ acc) "" pairOfPairs 
+
+showDigram :: (String, String) -> String
+showDigram (a, b) =
+    a ++ " : " ++ b
+
+
 -- HELPERS
 
 padRight :: Int -> String -> String
@@ -159,3 +180,5 @@ padRight i str =
     j = max (i - n) 0
     blanks = take j $ repeat ' ' in
     str ++ blanks
+
+
