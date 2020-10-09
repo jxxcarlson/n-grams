@@ -36,7 +36,7 @@ help =
     putStrLn "  ------------------------------------------------------------"
     putStrLn "  stats FILENAME                      word, line, type count"
     putStrLn "  cfreq FILENAME                      character frequencies"
-    putStrLn "  freq  FILENAME START HOWMANYb       word frequencies"
+    putStrLn "  freq  FILENAME START HOWMANY        word frequencies"
     putStrLn "  rfreq  FILENAME START HOWMANY       relative frequencies"
     putStrLn "  lfreq  FILENAME START HOWMANY       log relative requencies"
     putStrLn ""

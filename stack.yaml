@@ -17,7 +17,7 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
-resolver: lts-13.11
+resolver: lts-16.17
 
 # LTS 16.16 for ghc-8.8.4, published 2 days ago.
 # LTS 16.11 for ghc-8.8.3, published a month ago.
