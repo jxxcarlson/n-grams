@@ -24,7 +24,6 @@ dependencies:
 - extra
 - containers
 - regex-tdfa
-- regex-tdfa-text
 - data-ordlist
 
 library:
