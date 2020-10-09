@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4d217ca65e17e4099eabc6003a7d12fe5d0e379f76b9f284ee298a66962dc922
+-- hash: d23ae9ca6137e7b452e12b9a726b0ffbf227ccad14a5f89b3de729e7d727ffe5
 
 name:           nlp
 version:        0.1.0.0
@@ -41,7 +41,6 @@ library
     , data-ordlist
     , extra
     , regex-tdfa
-    , regex-tdfa-text
   default-language: Haskell2010
 
 executable nlp-exe
@@ -58,7 +57,6 @@ executable nlp-exe
     , extra
     , nlp
     , regex-tdfa
-    , regex-tdfa-text
   default-language: Haskell2010
 
 test-suite nlp-test
@@ -76,5 +74,4 @@ test-suite nlp-test
     , extra
     , nlp
     , regex-tdfa
-    , regex-tdfa-text
   default-language: Haskell2010
