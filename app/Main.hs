@@ -7,7 +7,7 @@ import           Exec (exec)
 main :: IO()
 main =
   do
-    putStrLn "\n\nType 'help' if you need to\nType ':quit' to quit\n\nExample:\n\n  > stats whitman.txt\n\n"
+    putStrLn "\n\nType 'help' if you need to\nType ':quit' to quit\n\nExamples:\n\n  > stats whitman.txt\n  > dfreq ship.txt 0 20\n\n"
     loop
 
 loop :: IO ()

@@ -35,11 +35,12 @@ help =
     putStrLn ""
     putStrLn "  Commands"
     putStrLn "  ------------------------------------------------------------"
-    putStrLn "  stats FILENAME                      word, line, type count"
-    putStrLn "  cfreq FILENAME                      character frequencies"
-    putStrLn "  freq  FILENAME START HOWMANY        word frequencies"
+    putStrLn "  stats  FILENAME                     word, line, type count"
+    putStrLn "  cfreq  FILENAME                     character frequencies"
+    putStrLn "  freq   FILENAME START HOWMANY       word frequencies"
     putStrLn "  rfreq  FILENAME START HOWMANY       relative frequencies"
     putStrLn "  lfreq  FILENAME START HOWMANY       log relative requencies"
+    putStrLn "  dfreq  FILENAME START HOWMANY       digram requencies"
     putStrLn ""  
     putStrLn "  Type :quit to quit"
     putStrLn ""
@@ -139,7 +140,7 @@ getLogRelativeFrequencies contents start howMany =
 
 getDigramFrequencies :: String -> Int -> Int -> String
 getDigramFrequencies contents start howMany =
-    formatDigramFrequencies 25 $ slice start howMany $ relativeFrequencies $ sorted $ digramsOfText contents
+    formatDigramFrequencies 18 $ slice start howMany $ relativeFrequencies $ sorted $ digramsOfText contents
 
 -- SELECT SLICE OF DATA
 
@@ -160,15 +161,15 @@ formatDoublePairs padding pairs =
 
 formatDigramFrequency :: Int -> ((String, String), Double) -> String
 formatDigramFrequency padding (digram, f) = 
-    padRight padding (showDigram digram) ++ formatFloatN f 4
+    padRight padding (showDigram padding digram) ++ formatFloatN f 4
 
 formatDigramFrequencies :: Int -> [((String, String), Double)] -> String
 formatDigramFrequencies padding pairOfPairs =
     foldr (\p acc -> formatDigramFrequency padding p ++ "\n" ++ acc) "" pairOfPairs 
 
-showDigram :: (String, String) -> String
-showDigram (a, b) =
-    a ++ " : " ++ b
+showDigram :: Int -> (String, String) -> String
+showDigram padding (a, b) =
+    padRight padding a ++ padRight padding b
 
 
 -- HELPERS
