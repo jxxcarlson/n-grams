@@ -23,6 +23,7 @@ exec str =
          "rfreq" -> relFreq args
          "lfreq" -> logRelFreq args
          "dfreq" -> digramFreq args
+         "dfreq'" -> digramFreqCSV args
          _ -> putStrLn "??"
 
 
@@ -34,13 +35,14 @@ help =
   do
     putStrLn ""
     putStrLn "  Commands"
-    putStrLn "  ------------------------------------------------------------"
-    putStrLn "  stats  FILENAME                     word, line, type count"
-    putStrLn "  cfreq  FILENAME                     character frequencies"
-    putStrLn "  freq   FILENAME START HOWMANY       word frequencies"
-    putStrLn "  rfreq  FILENAME START HOWMANY       relative frequencies"
-    putStrLn "  lfreq  FILENAME START HOWMANY       log relative requencies"
-    putStrLn "  dfreq  FILENAME START HOWMANY       digram requencies"
+    putStrLn "  ----------------------------------------------------------------------"
+    putStrLn "  stats   FILENAME                     word, line, type count"
+    putStrLn "  cfreq   FILENAME                     character frequencies"
+    putStrLn "  freq    FILENAME START HOWMANY       word frequencies"
+    putStrLn "  rfreq   FILENAME START HOWMANY       relative frequencies"
+    putStrLn "  lfreq   FILENAME START HOWMANY       log relative requencies"
+    putStrLn "  dfreq   FILENAME START HOWMANY       digram requencies"
+    putStrLn "  dfreq'  IN_FILE OUT_FILE             write digrams frequencies to file"
     putStrLn ""  
     putStrLn "  Type :quit to quit"
     putStrLn ""
@@ -77,6 +79,22 @@ logRelFreq args = stats2 getLogRelativeFrequencies args
 digramFreq :: [String] -> IO ()
 digramFreq args = stats2 getDigramFrequencies args
 
+digramFreqCSV :: [String] -> IO ()
+digramFreqCSV args = pipe getDigramFrequenciesCSV args
+
+pipe :: (String -> String) -> [String] -> IO ()
+pipe f args = 
+  let
+    inFilelePath = args !! 0
+    outFilePath = args !! 1
+  in  
+  do  
+    contents <- readFile inFilelePath
+    putStrLn ""
+    writeFile outFilePath (f contents)
+    putStrLn $ "Output written to: " ++ outFilePath 
+    putStrLn ""
+
 -- Dispatcher for freq, relFrea, logRelFreq ...
 stats2 :: (String -> Int -> Int -> String) -> [String] -> IO ()
 stats2 f args = 
@@ -109,9 +127,6 @@ stats1 f args =
 
 -- GET CHAR FREQUENCES 
 
-
-
-
 getRelativeCharFrequencies :: String -> String
 getRelativeCharFrequencies contents =
    formatCharDoublePairs 5 $ relativeFrequencies $ sortedChars $ normalize' $ contents 
@@ -142,6 +157,11 @@ getDigramFrequencies :: String -> Int -> Int -> String
 getDigramFrequencies contents start howMany =
     formatDigramFrequencies 18 $ slice start howMany $ relativeFrequencies $ sorted $ digramsOfText contents
 
+getDigramFrequenciesCSV :: String -> String
+getDigramFrequenciesCSV contents =
+    formatDigramFrequenciesCSV $ relativeFrequencies $ sorted $ digramsOfText contents
+
+
 -- SELECT SLICE OF DATA
 
 sliceSortedWords :: Int -> Int ->  String -> [(String, Int)]
@@ -163,9 +183,18 @@ formatDigramFrequency :: Int -> ((String, String), Double) -> String
 formatDigramFrequency padding (digram, f) = 
     padRight padding (showDigram padding digram) ++ formatFloatN f 4
 
+formatDigramFrequencyCSV :: ((String, String), Double) -> String
+formatDigramFrequencyCSV ((a,b), f) = 
+    a ++ ","  ++ b ++ "," ++  formatFloatN f 6    
+
 formatDigramFrequencies :: Int -> [((String, String), Double)] -> String
 formatDigramFrequencies padding pairOfPairs =
     foldr (\p acc -> formatDigramFrequency padding p ++ "\n" ++ acc) "" pairOfPairs 
+
+formatDigramFrequenciesCSV :: [((String, String), Double)] -> String
+formatDigramFrequenciesCSV pairOfPairs =
+    foldr (\p acc -> formatDigramFrequencyCSV p ++ "\n" ++ acc) "" pairOfPairs 
+
 
 showDigram :: Int -> (String, String) -> String
 showDigram padding (a, b) =
