@@ -6,7 +6,12 @@ import Normalize (normalize, normalize')
 import Utility ((|>))
 
 import Numeric 
+import Data
+
+
 formatFloatN floatNum numOfDecimals = showFFloat (Just numOfDecimals) floatNum ""
+
+
 
 -- DISPATCHER
 
@@ -24,6 +29,7 @@ exec str =
          "lfreq" -> logRelFreq args
          "dfreq" -> digramFreq args
          "dfreq'" -> digramFreqCSV args
+         "test" -> test args
          _ -> putStrLn "??"
 
 
@@ -43,10 +49,18 @@ help =
     putStrLn "  lfreq   FILENAME START HOWMANY       log relative requencies"
     putStrLn "  dfreq   FILENAME START HOWMANY       digram requencies"
     putStrLn "  dfreq'  IN_FILE OUT_FILE             write digrams frequencies to file"
+    putStrLn "  test    FILE                         read a file of digrams, parse it, and print to stdout"
     putStrLn ""  
     putStrLn "  Type :quit to quit"
     putStrLn ""
 
+
+test :: [String] -> IO ()
+test args = 
+  let 
+    filePath = args !! 0
+  in
+    Data.readDigrams filePath
 
 stats :: [String] -> IO ()
 stats args = 
